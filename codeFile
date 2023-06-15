@@ -1,0 +1,105 @@
+@ ARM Assembly code for project : Electronic Voting Machine
+
+.data
+  menu: .asciz "Vote to candidate A or B (1 or 2), to Halt : (3). \n"
+  message1: .asciz "Recorded!! To vote again : Clear Switch \n"
+  invalidMessage: .asciz "Invalid Input! \n"
+  awon: .asciz "A wins!! \n"
+  bwon: .asciz "B wins!! \n"
+  draw: .asciz "Draw! \n"
+
+.text
+.global _start
+
+.section .text
+_start:
+ 
+  ldr r0, =0xff201000		@Load address of JTAG UART
+  ldr r1, =menu         	@Load address of the string (menu)
+  ldr r3, =0xff200040		@load address of Switches
+  ldr r7, =message1			
+  ldr r8, =invalidMessage
+  ldr r9, =awon
+  ldr r10, =bwon
+  ldr r11, =draw
+  mov r5, #0
+  mov r6, #0
+ 
+clearCheck:
+	ldr r2, [r3]
+	cmp r2, #0
+	beq L1
+	b clearCheck
+
+@ Print the menu
+L1: 
+  mov r12, r1
+  P1: ldrb r2, [r12], #1           @ Load the next character
+  cmp r2, #0                  @ Check for null terminator
+  beq L2
+  str r2, [r0]					@ Write the character to the simulated JTAG UART
+  b P1
+L2: 
+	ldr r2, [r3]
+	cmp r2,#0
+	beq L2
+L3: 
+	cmp r2, #2
+	beq VoteToA
+L4:
+	cmp r2, #4
+	beq VoteToB
+L5:
+	ldr r2, [r3]
+	cmp r2, #8
+	beq declareResult
+	b invalidInput
+VoteToA:
+	add r5, r5, #1
+	b clear
+VoteToB:
+	add r6, r6, #1
+	b clear
+
+declareResult:
+	cmp r5, r6
+	bgt Awon
+	blt Bwon
+	beq Draw
+invalidInput: 
+	mov r12, r8
+    P2: ldrb r2, [r12], #1           
+  	cmp r2, #0                  
+  	beq clearCheck
+  	str r2, [r0]					@ Write the character to the simulated JTAG UART
+  	b P2
+clear:
+	mov r12, r7
+    P3: ldrb r2, [r12], #1           
+  	cmp r2, #0                  
+  	beq clearCheck
+  	str r2, [r0]					@ Write the character to the simulated JTAG UART
+  	b P3
+
+Awon:
+	mov r12, r9
+    P4: ldrb r2, [r12], #1         
+  	cmp r2, #0                  
+  	beq exit
+  	str r2, [r0]					@ Write the character to the simulated JTAG UART
+  	b P4
+Bwon:
+	mov r12, r10
+	P5: ldrb r2, [r12], #1         
+  	cmp r2, #0                  
+  	beq exit
+  	str r2, [r0]					@ Write the character to the simulated JTAG UART
+  	b P5
+Draw:
+	mov r12, r11
+	P6: ldrb r2, [r12], #1        
+  	cmp r2, #0                  
+  	beq exit
+  	str r2, [r0]					@ Write the character to the simulated JTAG UART
+  	b P6
+exit: b exit
