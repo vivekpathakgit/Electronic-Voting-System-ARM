@@ -1,4 +1,4 @@
-# ElectronicVotingSystemARM
+# Electronic Voting System ARM
 ## Description: 
 This is a voting system for 2 candidates A and B. User can cast vote to A & B via switches 1 & 2 respectively. After each vote, user needs to clear the switches and then can caste vote again. Via switch 3, the user can halt voting and display result. Result will be displayed as A wins!! or B wins!! or Draw! . 
 
